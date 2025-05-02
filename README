@@ -1,0 +1,83 @@
+# Traveling Salesman Problem Solver Using Open MPI
+
+This implementation solves the Traveling Salesman Problem (TSP) using parallel processing with Open MPI. It uses a Branch and Bound algorithm to find the optimal solution efficiently.
+
+## Problem Description
+Given a list of cities and the distances between each pair of cities, the Traveling Salesman Problem asks for the shortest possible route that visits each city exactly once and returns to the origin city.
+
+## Implementation Details
+
+### Algorithm
+- Uses Branch and Bound algorithm for pruning the search space
+- Implements a lower bound heuristic to skip unpromising paths
+- Parallelizes across multiple processes using Open MPI
+- Master-worker architecture for dynamic workload distribution
+
+### Parallelization Strategy
+- Master process (rank 0) coordinates work distribution
+- Each worker process (rank > 0) explores paths starting from different cities
+- Workers communicate their best solutions back to master
+- Master broadcasts global best solutions to improve pruning
+
+## Setup Instructions for WSL (Windows Subsystem for Linux)
+
+### Prerequisites
+1. WSL installed with a Linux distribution (e.g., Ubuntu)
+2. Open MPI installed on WSL
+
+### Installation
+
+1. Install Open MPI in WSL:
+```bash
+sudo apt update
+sudo apt install openmpi-bin libopenmpi-dev
+```
+
+2. Compile the code:
+```bash
+make
+```
+
+### Usage
+
+1. Create a distance matrix file (`distances.txt`):
+   - First line: number of cities
+   - Subsequent lines: distance matrix (space-separated integers)
+
+2. Run the program:
+```bash
+# Adjust -np based on your available CPU cores (recommended: cores - 1)
+mpirun -np 4 ./tsp_solver distances.txt
+```
+
+## Example
+
+For 5 cities with the following distance matrix:
+```
+0 10 15 20 25
+10 0 35 25 30
+15 35 0 30 5
+20 25 30 0 15
+25 30 5 15 0
+```
+
+The program will find the shortest tour that visits all cities once and returns to the starting point.
+
+## Performance Considerations
+
+- The TSP is NP-hard, so computation time grows exponentially with the number of cities
+- This implementation is practical for up to ~20 cities
+- For larger instances, consider using heuristic approaches instead
+
+## Customization
+
+- Adjust `MAX_CITIES` in the code for larger problem instances
+- Modify the lower bound calculation for better pruning
+- Change the workload distribution strategy for better load balancing
+
+## Troubleshooting
+
+If you encounter any issues:
+1. Ensure Open MPI is properly installed
+2. Verify the distance file format is correct
+3. Try reducing the number of processes if memory issues occur
